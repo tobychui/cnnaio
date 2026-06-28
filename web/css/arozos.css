@@ -1,0 +1,1099 @@
+/* =====================================================================
+ * arozos.css  —  ArozOS Design Framework
+ * ---------------------------------------------------------------------
+ * A lightweight, Semantic-UI-flavoured CSS framework that reproduces the
+ * Apple/macOS-inspired look used by the ArozOS System Settings pages
+ * (info, user list, cluster neighbourhood, ...).
+ *
+ * Goals
+ *   - Familiar Semantic-UI-like class syntax:  <div class="ui segment">
+ *   - Class based light / dark theming driven by the <body> element:
+ *         <body class="white">   ->  light theme (also the default)
+ *         <body class="dark">    ->  dark theme
+ *     Pair with arozos.js for the runtime theme toggle + animations.
+ *
+ * Namespace
+ *   - All components are reached through the `ui` keyword, exactly like
+ *     Semantic UI (`ui segment`, `ui button`, `ui message`, ...).
+ *   - Internal variables are prefixed `--ao-` to avoid collisions.
+ *
+ * NOTE: This is meant to be used *instead of* Semantic UI in standalone
+ *       projects, not alongside it (the `ui` class would clash).
+ * ===================================================================== */
+
+/* =====================================================================
+ * 1. Theme tokens
+ * ===================================================================== */
+
+:root,
+body.white {
+    /* Surfaces */
+    --ao-bg:           #ffffff;   /* base page background                 */
+    --ao-bg-sunken:    #f5f5f7;   /* sunken app / desktop background      */
+    --ao-card:         #ffffff;   /* card / segment surface               */
+    --ao-card-head:    #fafafa;   /* card header strip                    */
+    --ao-card-alt:     #f5f5f7;   /* alt surface: default buttons, heads  */
+
+    /* Lines */
+    --ao-border:       #d2d2d7;   /* solid divider / border               */
+    --ao-border-soft:  rgba(0, 0, 0, 0.08);
+    --ao-border-input: #e5e5ea;   /* control border                       */
+
+    /* Text */
+    --ao-text:         #1d1d1f;   /* primary text                         */
+    --ao-dim:          #6e6e73;   /* secondary text                       */
+    --ao-muted:        #98989d;   /* tertiary / placeholder text          */
+
+    /* Accents */
+    --ao-accent:       #0071e3;
+    --ao-accent-text:  #ffffff;
+    --ao-accent-soft:  rgba(0, 113, 227, 0.10);
+    --ao-success:      #34c759;
+    --ao-success-soft: rgba(52, 199, 89, 0.12);
+    --ao-warning:      #ff9f0a;
+    --ao-warning-soft: rgba(255, 159, 10, 0.12);
+    --ao-danger:       #ff3b30;
+    --ao-danger-soft:  rgba(255, 59, 48, 0.09);
+
+    /* States */
+    --ao-hover:        rgba(0, 0, 0, 0.045);
+    --ao-active:       rgba(0, 0, 0, 0.09);
+    --ao-selected:     rgba(0, 113, 227, 0.08);
+
+    /* Elevation */
+    --ao-shadow:       rgba(0, 0, 0, 0.13);
+    --ao-shadow-card:  0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+    --ao-shadow-pop:   0 16px 60px rgba(0, 0, 0, 0.30);
+
+    /* Geometry */
+    --ao-radius-sm:    6px;
+    --ao-radius:       10px;
+    --ao-radius-lg:    12px;
+    --ao-radius-pill:  999px;
+
+    /* Type */
+    --ao-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --ao-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+    /* Motion */
+    --ao-speed:        0.18s;
+    --ao-ease:         cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark {
+    --ao-bg:           #2b2b2b;
+    --ao-bg-sunken:    #1f1f1f;
+    --ao-card:         #2c2c2e;
+    --ao-card-head:    #232325;
+    --ao-card-alt:     #3a3a3c;
+
+    --ao-border:       #3a3a3c;
+    --ao-border-soft:  rgba(255, 255, 255, 0.09);
+    --ao-border-input: #48484a;
+
+    --ao-text:         #f2f2f7;
+    --ao-dim:          #aeaeb2;
+    --ao-muted:        #8e8e93;
+
+    --ao-accent:       #2997ff;
+    --ao-accent-text:  #ffffff;
+    --ao-accent-soft:  rgba(41, 151, 255, 0.14);
+    --ao-success:      #30d158;
+    --ao-success-soft: rgba(48, 209, 88, 0.14);
+    --ao-warning:      #ffd60a;
+    --ao-warning-soft: rgba(255, 214, 10, 0.14);
+    --ao-danger:       #ff453a;
+    --ao-danger-soft:  rgba(255, 69, 58, 0.12);
+
+    --ao-hover:        rgba(255, 255, 255, 0.06);
+    --ao-active:       rgba(255, 255, 255, 0.12);
+    --ao-selected:     rgba(41, 151, 255, 0.12);
+
+    --ao-shadow:       rgba(0, 0, 0, 0.45);
+    --ao-shadow-card:  0 1px 6px rgba(0, 0, 0, 0.35), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+    --ao-shadow-pop:   0 16px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* =====================================================================
+ * 2. Base / reset
+ * ===================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: var(--ao-font);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ao-text);
+    background: var(--ao-bg-sunken);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background var(--ao-speed) var(--ao-ease),
+                color var(--ao-speed) var(--ao-ease);
+}
+
+/* Transparent body for embedding inside ArozOS float windows */
+body.transparent { background: transparent; }
+
+a { color: var(--ao-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre, .ui.code {
+    font-family: var(--ao-font-mono);
+    font-size: 0.9em;
+}
+
+::selection { background: var(--ao-accent-soft); }
+
+/* =====================================================================
+ * 3. Container
+ * ===================================================================== */
+
+.ui.container {
+    width: 100%;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+.ui.container.fluid    { max-width: none; }
+.ui.container.narrow   { max-width: 620px; }
+.ui.container.wide     { max-width: 1200px; }
+.ui.container.padded   { padding-top: 20px; padding-bottom: 20px; }
+
+/* =====================================================================
+ * 4. Header / typography
+ * ===================================================================== */
+
+.ui.header {
+    font-family: var(--ao-font);
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--ao-text);
+    margin: 0 0 0.6em;
+    line-height: 1.25;
+}
+.ui.header .sub,
+.ui.header .ui.sub.header {
+    display: block;
+    font-size: 0.7em;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--ao-dim);
+    margin-top: 0.3em;
+}
+.ui.huge.header   { font-size: 28px; }
+.ui.large.header  { font-size: 21px; }
+.ui.header        { font-size: 17px; }
+.ui.medium.header { font-size: 15px; }
+.ui.small.header  { font-size: 13px; }
+.ui.header.dimmed { color: var(--ao-dim); font-weight: 500; }
+
+/* Uppercase "eyebrow" section heading (the *-section-label idiom used
+ * across the SystemAO pages). Named `eyebrow` rather than `label` so it
+ * never collides with the `.ui.label` badge. */
+.ui.eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ao-muted);
+    margin: 12px 0 8px;
+}
+
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+.ui.text.dim    { color: var(--ao-dim); }
+.ui.text.muted  { color: var(--ao-muted); }
+.ui.text.accent { color: var(--ao-accent); }
+.ui.text.small  { font-size: 12px; }
+.ui.text.tiny   { font-size: 11px; }
+
+/* =====================================================================
+ * 5. Divider
+ * ===================================================================== */
+
+.ui.divider {
+    height: 0;
+    border: none;
+    border-top: 1px solid var(--ao-border);
+    margin: 14px 0;
+}
+.ui.divider.fitted  { margin: 0; }
+.ui.divider.section { margin: 22px 0; }
+
+/* Horizontal divider with centered text */
+.ui.horizontal.divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: none;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ao-muted);
+}
+.ui.horizontal.divider::before,
+.ui.horizontal.divider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--ao-border);
+}
+
+/* =====================================================================
+ * 6. Segment
+ * ===================================================================== */
+
+.ui.segment {
+    position: relative;
+    background: var(--ao-card);
+    border: 1px solid var(--ao-border);
+    border-radius: var(--ao-radius);
+    padding: 16px 18px;
+    margin: 0 0 12px;
+}
+.ui.segment:last-child { margin-bottom: 0; }
+.ui.segment.raised   { border-color: transparent; box-shadow: var(--ao-shadow-card); }
+.ui.segment.padded   { padding: 24px 26px; }
+.ui.segment.compact  { display: inline-block; width: auto; }
+.ui.segment.basic    { background: none; border: none; padding: 0; }
+.ui.segment.sunken   { background: var(--ao-bg-sunken); }
+.ui.segment.accent   { border-left: 3px solid var(--ao-accent); }
+
+.ui.segments {
+    border: 1px solid var(--ao-border);
+    border-radius: var(--ao-radius);
+    overflow: hidden;
+    margin: 0 0 12px;
+}
+.ui.segments > .ui.segment {
+    border: none;
+    border-bottom: 1px solid var(--ao-border);
+    border-radius: 0;
+    margin: 0;
+}
+.ui.segments > .ui.segment:last-child { border-bottom: none; }
+
+/* =====================================================================
+ * 7. Card
+ * ===================================================================== */
+
+.ui.card {
+    background: var(--ao-card);
+    border-radius: var(--ao-radius-lg);
+    box-shadow: var(--ao-shadow-card);
+    margin: 0 0 10px;
+    overflow: hidden;
+}
+.ui.card.bordered { box-shadow: none; border: 1px solid var(--ao-border); }
+
+.ui.card > .header,
+.ui.card > .content.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px 11px;
+    border-bottom: 1px solid var(--ao-border-soft);
+    background: var(--ao-card-head);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ao-text);
+}
+.ui.card > .content {
+    padding: 12px 16px;
+}
+.ui.card > .content > .header {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.ui.card > .content > .meta {
+    font-size: 11px;
+    color: var(--ao-dim);
+    margin-top: 2px;
+}
+.ui.card > .content > .description {
+    font-size: 12.5px;
+    color: var(--ao-dim);
+    line-height: 1.5;
+}
+.ui.card > .extra,
+.ui.card > .footer {
+    padding: 9px 16px;
+    border-top: 1px solid var(--ao-border-soft);
+    background: var(--ao-card-head);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ao-dim);
+}
+.ui.card > .extra.right,
+.ui.card > .footer.right { justify-content: flex-end; }
+
+/* Card group: responsive flex grid of equal cards */
+.ui.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+.ui.cards > .ui.card { margin: 0; }
+
+/* =====================================================================
+ * 8. Button
+ * ===================================================================== */
+
+.ui.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 15px;
+    border-radius: var(--ao-radius-sm);
+    border: 1px solid var(--ao-border-input);
+    background: var(--ao-card-alt);
+    color: var(--ao-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    outline: none;
+    text-decoration: none;
+    transition: background var(--ao-speed) var(--ao-ease),
+                opacity var(--ao-speed) var(--ao-ease),
+                border-color var(--ao-speed) var(--ao-ease),
+                transform 0.06s var(--ao-ease);
+}
+.ui.button:hover  { background: var(--ao-hover); text-decoration: none; }
+.ui.button:active { background: var(--ao-active); transform: translateY(0.5px); }
+.ui.button:focus-visible { box-shadow: 0 0 0 3px var(--ao-accent-soft); }
+
+.ui.button > svg, .ui.button > .icon { width: 1em; height: 1em; flex-shrink: 0; }
+
+/* Variants */
+.ui.primary.button {
+    background: var(--ao-accent);
+    color: var(--ao-accent-text);
+    border-color: var(--ao-accent);
+}
+.ui.primary.button:hover  { background: var(--ao-accent); opacity: 0.85; }
+.ui.primary.button:active { opacity: 0.75; }
+
+.ui.positive.button,
+.ui.success.button {
+    background: var(--ao-success);
+    color: #fff;
+    border-color: var(--ao-success);
+}
+.ui.positive.button:hover, .ui.success.button:hover { opacity: 0.85; }
+
+.ui.negative.button,
+.ui.danger.button {
+    background: transparent;
+    color: var(--ao-danger);
+    border-color: var(--ao-danger);
+}
+.ui.negative.button:hover, .ui.danger.button:hover { background: var(--ao-danger-soft); }
+
+.ui.basic.button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ao-accent);
+}
+.ui.basic.button:hover { background: var(--ao-accent-soft); }
+
+/* Sizes */
+.ui.tiny.button  { padding: 4px 10px; font-size: 11.5px; }
+.ui.small.button { padding: 6px 13px; font-size: 12.5px; }
+.ui.large.button { padding: 9px 20px; font-size: 15px; }
+.ui.fluid.button { display: flex; width: 100%; }
+.ui.icon.button  { padding: 7px; }
+
+/* States */
+.ui.button.disabled, .ui.button:disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+.ui.button.loading {
+    color: transparent !important;
+    pointer-events: none;
+    position: relative;
+}
+.ui.button.loading::after {
+    content: "";
+    position: absolute;
+    width: 14px; height: 14px;
+    top: 50%; left: 50%;
+    margin: -7px 0 0 -7px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    color: var(--ao-text);
+    animation: aoSpin 0.6s linear infinite;
+}
+.ui.primary.button.loading::after,
+.ui.positive.button.loading::after { color: #fff; }
+
+/* Button group */
+.ui.buttons {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.ui.buttons.attached { gap: 0; }
+.ui.buttons.attached > .ui.button { border-radius: 0; margin-left: -1px; }
+.ui.buttons.attached > .ui.button:first-child {
+    border-top-left-radius: var(--ao-radius-sm);
+    border-bottom-left-radius: var(--ao-radius-sm);
+    margin-left: 0;
+}
+.ui.buttons.attached > .ui.button:last-child {
+    border-top-right-radius: var(--ao-radius-sm);
+    border-bottom-right-radius: var(--ao-radius-sm);
+}
+
+/* =====================================================================
+ * 9. Label / Badge
+ * ===================================================================== */
+
+.ui.label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: var(--ao-radius-pill);
+    background: var(--ao-accent-soft);
+    color: var(--ao-accent);
+    line-height: 1.5;
+}
+.ui.label.basic    { background: var(--ao-card-alt); color: var(--ao-dim); border: 1px solid var(--ao-border); }
+.ui.label.success,
+.ui.label.positive { background: var(--ao-success-soft); color: var(--ao-success); }
+.ui.label.warning  { background: var(--ao-warning-soft); color: var(--ao-warning); }
+.ui.label.danger,
+.ui.label.negative { background: var(--ao-danger-soft); color: var(--ao-danger); }
+.ui.label.muted    { background: var(--ao-hover); color: var(--ao-muted); }
+.ui.label.tag      { border-radius: var(--ao-radius-sm); }
+
+/* =====================================================================
+ * 10. Status indicators
+ * ===================================================================== */
+
+.ui.status.dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ao-muted);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.ui.status.dot.online,
+.ui.status.dot.success {
+    background: var(--ao-success);
+    box-shadow: 0 0 0 2.5px var(--ao-success-soft);
+}
+.ui.status.dot.busy,
+.ui.status.dot.warning { background: var(--ao-warning); box-shadow: 0 0 0 2.5px var(--ao-warning-soft); }
+.ui.status.dot.error,
+.ui.status.dot.danger  { background: var(--ao-danger); box-shadow: 0 0 0 2.5px var(--ao-danger-soft); }
+.ui.status.dot.offline { background: var(--ao-muted); }
+.ui.status.dot.pulse   { animation: aoPulse 1.6s var(--ao-ease) infinite; }
+
+/* =====================================================================
+ * 11. Message
+ * ===================================================================== */
+
+.ui.message {
+    position: relative;
+    border-radius: var(--ao-radius);
+    padding: 12px 16px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    background: var(--ao-card-alt);
+    border: 1px solid var(--ao-border-soft);
+    color: var(--ao-text);
+}
+.ui.message .header,
+.ui.message .ui.header {
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: inherit;
+}
+.ui.message > .close {
+    position: absolute;
+    top: 10px; right: 12px;
+    cursor: pointer;
+    opacity: 0.5;
+    font-size: 16px;
+    line-height: 1;
+    color: inherit;
+}
+.ui.message > .close:hover { opacity: 0.9; }
+
+.ui.info.message {
+    background: var(--ao-accent-soft);
+    border-color: transparent;
+    color: var(--ao-accent);
+}
+.ui.success.message,
+.ui.positive.message {
+    background: var(--ao-success-soft);
+    border-color: transparent;
+    color: var(--ao-success);
+}
+.ui.warning.message {
+    background: var(--ao-warning-soft);
+    border-color: transparent;
+    color: var(--ao-warning);
+}
+.ui.error.message,
+.ui.negative.message {
+    background: var(--ao-danger-soft);
+    border: 1px solid var(--ao-danger);
+    color: var(--ao-danger);
+}
+
+/* =====================================================================
+ * 12. Table
+ * ===================================================================== */
+
+.ui.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: var(--ao-text);
+    background: var(--ao-card);
+}
+.ui.table th {
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ao-muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--ao-border);
+}
+.ui.table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--ao-border);
+    vertical-align: top;
+}
+.ui.table tbody tr:last-child td { border-bottom: none; }
+.ui.table.celled th, .ui.table.celled td { border: 1px solid var(--ao-border); }
+.ui.table.striped tbody tr:nth-child(even) { background: var(--ao-card-alt); }
+.ui.table.selectable tbody tr { cursor: pointer; transition: background 0.08s; }
+.ui.table.selectable tbody tr:hover { background: var(--ao-hover); }
+.ui.table.bordered {
+    border: 1px solid var(--ao-border);
+    border-radius: var(--ao-radius);
+    overflow: hidden;
+}
+
+/* Key-value definition table (spec sheets) */
+.ui.kv.table td { padding: 9px 0; font-size: 13px; line-height: 1.5; }
+.ui.kv.table td.key,
+.ui.kv.table td:first-child {
+    width: 160px;
+    padding-right: 24px;
+    white-space: nowrap;
+    color: var(--ao-dim);
+}
+.ui.kv.table td.value, .ui.kv.table td:last-child { color: var(--ao-text); word-break: break-word; }
+.ui.kv.table tr { border-bottom: 1px solid var(--ao-border); }
+.ui.kv.table tr:last-child { border-bottom: none; }
+
+/* =====================================================================
+ * 13. List
+ * ===================================================================== */
+
+.ui.list {
+    border: 1px solid var(--ao-border);
+    border-radius: var(--ao-radius);
+    overflow: hidden;
+    background: var(--ao-card);
+}
+.ui.list > .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--ao-border);
+    transition: background 0.08s;
+}
+.ui.list > .item:last-child { border-bottom: none; }
+.ui.list.selectable > .item { cursor: pointer; user-select: none; }
+.ui.list.selectable > .item:hover { background: var(--ao-hover); }
+.ui.list > .item.selected { background: var(--ao-selected); }
+.ui.list > .item > .content { flex: 1; min-width: 0; }
+.ui.list > .item > .content > .title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ao-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ui.list > .item > .content > .meta { font-size: 11.5px; color: var(--ao-dim); margin-top: 1px; }
+.ui.list > .item > .right { margin-left: auto; color: var(--ao-dim); font-size: 12px; white-space: nowrap; }
+
+.ui.list.plain { border: none; background: none; }
+.ui.list.plain > .item { border-bottom: 1px solid var(--ao-border); }
+
+/* A simple flex row, the "si-row" idiom from the info page */
+.ui.row.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--ao-border);
+    font-size: 13px;
+}
+.ui.row.item:last-child { border-bottom: none; }
+
+/* =====================================================================
+ * 14. Form controls
+ * ===================================================================== */
+
+.ui.input,
+.ui.form input[type="text"],
+.ui.form input[type="password"],
+.ui.form input[type="email"],
+.ui.form input[type="number"],
+.ui.form input[type="search"],
+.ui.form textarea,
+.ui.select,
+.ui.form select {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ao-text);
+    background: var(--ao-card-alt);
+    border: 1px solid var(--ao-border-input);
+    border-radius: var(--ao-radius-sm);
+    padding: 7px 10px;
+    outline: none;
+    width: 100%;
+    transition: border-color var(--ao-speed) var(--ao-ease),
+                box-shadow var(--ao-speed) var(--ao-ease);
+}
+.ui.select, .ui.form select { cursor: pointer; }
+.ui.form textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.ui.input:focus,
+.ui.form input:focus,
+.ui.form textarea:focus,
+.ui.select:focus,
+.ui.form select:focus {
+    border-color: var(--ao-accent);
+    box-shadow: 0 0 0 3px var(--ao-accent-soft);
+}
+.ui.input::placeholder, .ui.form input::placeholder, .ui.form textarea::placeholder {
+    color: var(--ao-muted);
+}
+.ui.input.inline, .ui.select.inline { width: auto; }
+
+/* Field wrapper */
+.ui.form .field { margin-bottom: 14px; }
+.ui.form .field > label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ao-text);
+    margin-bottom: 5px;
+}
+.ui.form .field > .hint { font-size: 11.5px; color: var(--ao-dim); margin-top: 4px; }
+.ui.form .inline.fields { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+
+/* Checkbox + radio: tint native control with the accent */
+.ui.checkbox,
+.ui.form input[type="checkbox"],
+.ui.form input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ao-accent);
+    cursor: pointer;
+    vertical-align: middle;
+}
+.ui.checkbox.row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--ao-dim);
+    width: auto;
+}
+.ui.checkbox.row input { flex-shrink: 0; }
+
+/* =====================================================================
+ * 15. Menu / navigation
+ * ===================================================================== */
+
+.ui.menu {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--ao-card-alt);
+    border-radius: var(--ao-radius);
+    padding: 4px;
+}
+.ui.menu .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--ao-text);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.08s;
+    text-decoration: none;
+}
+.ui.menu .item:hover  { background: var(--ao-hover); }
+.ui.menu .item.active { background: var(--ao-active); font-weight: 500; }
+.ui.menu .item > svg, .ui.menu .item > .icon { width: 15px; height: 15px; flex-shrink: 0; color: var(--ao-dim); }
+.ui.menu .item.right, .ui.menu .right.item { margin-left: auto; }
+
+/* Vertical side-nav strip (info page #si-nav idiom) */
+.ui.vertical.menu {
+    flex-direction: column;
+    align-items: stretch;
+    background: none;
+    padding: 0;
+    gap: 2px;
+}
+.ui.vertical.menu .item { border-radius: 7px; }
+
+/* Tabbed menu (underline style) */
+.ui.tabular.menu {
+    background: none;
+    border-radius: 0;
+    border-bottom: 1px solid var(--ao-border);
+    padding: 0;
+    gap: 4px;
+}
+.ui.tabular.menu .item {
+    border-radius: 0;
+    padding: 9px 12px;
+    color: var(--ao-dim);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.ui.tabular.menu .item:hover { background: none; color: var(--ao-text); }
+.ui.tabular.menu .item.active {
+    background: none;
+    color: var(--ao-accent);
+    border-bottom-color: var(--ao-accent);
+    font-weight: 600;
+}
+
+/* Tab content panes */
+.ui.tab { display: none; }
+.ui.tab.active { display: block; }
+
+/* =====================================================================
+ * 16. Avatar / image
+ * ===================================================================== */
+
+.ui.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--ao-border-input);
+    background: var(--ao-card-alt);
+}
+.ui.avatar.small  { width: 26px; height: 26px; }
+.ui.avatar.large  { width: 56px; height: 56px; }
+.ui.avatar.huge   {
+    width: 96px; height: 96px;
+    box-shadow: 0 0 0 1px var(--ao-border-soft), 0 4px 18px var(--ao-shadow);
+    border: none;
+}
+.ui.image.rounded { border-radius: var(--ao-radius); }
+.ui.image.bordered { border: 1px solid var(--ao-border); }
+
+/* =====================================================================
+ * 17. Modal / dimmer
+ * ===================================================================== */
+
+.ui.dimmer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.48);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity var(--ao-speed) var(--ao-ease);
+}
+.ui.dimmer.active { display: flex; opacity: 1; }
+
+/* Lock background scroll while any modal is open (toggled by arozos.js). */
+body.ao-modal-open { overflow: hidden; }
+
+.ui.modal {
+    background: var(--ao-bg);
+    border: 1px solid var(--ao-border);
+    border-radius: var(--ao-radius-lg);
+    width: 460px;
+    max-width: 100%;
+    max-height: 84vh;
+    overflow-y: auto;
+    box-shadow: var(--ao-shadow-pop);
+    transform: scale(0.96);
+    opacity: 0;
+    transition: transform var(--ao-speed) var(--ao-ease),
+                opacity var(--ao-speed) var(--ao-ease);
+}
+.ui.dimmer.active > .ui.modal { transform: scale(1); opacity: 1; }
+.ui.modal.small  { width: 360px; }
+.ui.modal.large  { width: 640px; }
+.ui.modal.fluid  { width: 95vw; }
+
+.ui.modal > .header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ao-text);
+    padding: 20px 24px 0;
+}
+.ui.modal > .header.danger, .ui.modal > .header.negative { color: var(--ao-danger); }
+.ui.modal > .content {
+    padding: 12px 24px;
+    font-size: 13px;
+    color: var(--ao-dim);
+    line-height: 1.55;
+}
+.ui.modal > .content .ui.header { color: var(--ao-text); }
+.ui.modal > .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 24px 20px;
+}
+
+/* =====================================================================
+ * 18. Loader / spinner
+ * ===================================================================== */
+
+.ui.loader {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid var(--ao-border);
+    border-top-color: var(--ao-accent);
+    border-radius: 50%;
+    animation: aoSpin 0.65s linear infinite;
+    vertical-align: middle;
+}
+.ui.loader.tiny  { width: 14px; height: 14px; border-width: 2px; }
+.ui.loader.large { width: 32px; height: 32px; border-width: 3px; }
+.ui.loader.centered { display: block; margin: 24px auto; }
+
+/* Inline loading text block */
+.ui.loading.text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    padding: 24px 16px;
+    color: var(--ao-muted);
+    font-size: 13px;
+}
+
+/* =====================================================================
+ * 19. Placeholder / empty state
+ * ===================================================================== */
+
+.ui.placeholder,
+.ui.empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--ao-muted);
+    font-size: 13px;
+}
+.ui.empty.compact { padding: 14px 12px; }
+
+/* =====================================================================
+ * 20. Grid (lightweight flex grid)
+ * ===================================================================== */
+
+.ui.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.ui.grid > .column { flex: 1; min-width: 0; }
+.ui.grid.two   > .column { flex: 0 0 calc(50% - 6px); }
+.ui.grid.three > .column { flex: 0 0 calc(33.333% - 8px); }
+.ui.grid.four  > .column { flex: 0 0 calc(25% - 9px); }
+.ui.grid.middle { align-items: center; }
+.ui.grid.stackable > .column { } /* see responsive section */
+
+/* =====================================================================
+ * 21. Utilities
+ * ===================================================================== */
+
+.ui.hidden { display: none !important; }
+.ui.invisible { visibility: hidden !important; }
+.ui.fluid { width: 100% !important; }
+
+.ao-flex   { display: flex; }
+.ao-flex.center { align-items: center; }
+.ao-flex.between { justify-content: space-between; align-items: center; }
+.ao-flex.end { justify-content: flex-end; align-items: center; }
+.ao-flex.gap { gap: 8px; }
+.ao-flex.wrap { flex-wrap: wrap; }
+.ao-spacer { flex: 1; }
+
+.ao-left   { text-align: left; }
+.ao-center { text-align: center; }
+.ao-right  { text-align: right; }
+
+.ao-mt { margin-top: 12px; }
+.ao-mb { margin-bottom: 12px; }
+.ao-mt-lg { margin-top: 24px; }
+.ao-mb-lg { margin-bottom: 24px; }
+.ao-m0 { margin: 0 !important; }
+.ao-nowrap { white-space: nowrap; }
+.ao-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ao-mono { font-family: var(--ao-font-mono); }
+
+/* =====================================================================
+ * 22. Animation keyframes + helpers
+ *     (Pair with arozos.js, but usable standalone.)
+ * ===================================================================== */
+
+@keyframes aoSpin   { to { transform: rotate(360deg); } }
+@keyframes aoFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes aoFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes aoScaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes aoSlideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes aoSlideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes aoPulse  { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.ao-animate-fade   { animation: aoFadeIn   var(--ao-speed) var(--ao-ease) both; }
+.ao-animate-scale  { animation: aoScaleIn  var(--ao-speed) var(--ao-ease) both; }
+.ao-animate-up     { animation: aoSlideUp  0.24s var(--ao-ease) both; }
+.ao-animate-down   { animation: aoSlideDown 0.24s var(--ao-ease) both; }
+
+/* Chevron used in collapsibles / accordions */
+.ui.chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    transition: transform 0.2s var(--ao-ease);
+    fill: none;
+    stroke: var(--ao-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.ui.chevron.open, .ui.chevron.flipped { transform: rotate(180deg); }
+
+/* Accordion / collapsible */
+.ui.accordion > .content { display: none; }
+.ui.accordion > .content.open, .ui.accordion.active > .content { display: block; }
+
+/* =====================================================================
+ * 23. Toast / notification (rendered by arozos.js)
+ * ===================================================================== */
+
+.ao-toast-host {
+    position: fixed;
+    z-index: 9500;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.ao-toast {
+    pointer-events: auto;
+    min-width: 220px;
+    max-width: 360px;
+    background: var(--ao-card-alt);
+    color: var(--ao-text);
+    border: 1px solid var(--ao-border-soft);
+    border-radius: var(--ao-radius);
+    box-shadow: var(--ao-shadow-pop);
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    animation: aoSlideDown 0.22s var(--ao-ease) both;
+}
+/* Typed toasts follow the .ui.message colour language (soft tinted fill,
+   matching text colour) rather than a left accent border. The tint is composited
+   over an opaque base so a floating toast never shows content bleeding through. */
+.ao-toast.info {
+    background: linear-gradient(var(--ao-accent-soft), var(--ao-accent-soft)), var(--ao-card-alt);
+    border-color: transparent;
+    color: var(--ao-accent);
+}
+.ao-toast.success,
+.ao-toast.positive {
+    background: linear-gradient(var(--ao-success-soft), var(--ao-success-soft)), var(--ao-card-alt);
+    border-color: transparent;
+    color: var(--ao-success);
+}
+.ao-toast.warning {
+    background: linear-gradient(var(--ao-warning-soft), var(--ao-warning-soft)), var(--ao-card-alt);
+    border-color: transparent;
+    color: var(--ao-warning);
+}
+.ao-toast.error,
+.ao-toast.negative {
+    background: linear-gradient(var(--ao-danger-soft), var(--ao-danger-soft)), var(--ao-card-alt);
+    border-color: var(--ao-danger);
+    color: var(--ao-danger);
+}
+.ao-toast.hiding  { animation: aoFadeOut 0.2s var(--ao-ease) both; }
+.ao-toast .ao-toast-title { font-weight: 600; margin-bottom: 2px; }
+
+/* =====================================================================
+ * 24. Responsive
+ * ===================================================================== */
+
+@media (max-width: 600px) {
+    .ui.cards { grid-template-columns: 1fr; }
+    .ui.grid.stackable { flex-direction: column; }
+    .ui.grid.stackable > .column,
+    .ui.grid.two > .column,
+    .ui.grid.three > .column,
+    .ui.grid.four > .column { flex: 0 0 100%; }
+    .ui.modal { width: 100%; }
+}
+
+@media (max-width: 500px) {
+    .ui.kv.table, .ui.kv.table tbody, .ui.kv.table tr, .ui.kv.table td { display: block; width: 100%; }
+    .ui.kv.table td.key, .ui.kv.table td:first-child {
+        width: 100%;
+        padding-right: 0;
+        white-space: normal;
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    /* Collapse a horizontal menu into a scrollable strip */
+    .ui.menu.scrollable { overflow-x: auto; scrollbar-width: none; }
+    .ui.menu.scrollable::-webkit-scrollbar { display: none; }
+    .ui.menu.scrollable .item { flex-shrink: 0; }
+}

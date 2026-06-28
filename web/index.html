@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cnnaio — API Tester</title>
+    <link rel="stylesheet" href="css/arozos.css">
+    <script src="css/jquery.min.js"></script>
+    <script src="css/arozos.js"></script>
+    <style>
+        .cxn-grid { display: grid; grid-template-columns: 380px 1fr; gap: 18px; align-items: start; }
+        @media (max-width: 900px) { .cxn-grid { grid-template-columns: 1fr; } }
+        .cxn-code { background: #1e1e24; color: #e6e6e6; border-radius: 8px; padding: 12px;
+                    font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+                    white-space: pre; overflow: auto; max-height: 320px; }
+        #resultImg { max-width: 100%; border-radius: 8px; display: none; }
+        #resultJson { max-height: 360px; overflow: auto; }
+        .cxn-hidden { display: none !important; }
+        .cxn-thumb { max-height: 120px; border-radius: 6px; margin-top: 8px; display: none; }
+        .field.compact { margin-bottom: 10px; }
+    </style>
+</head>
+<body class="white">
+<div class="ui container padded">
+
+    <div class="ao-flex between ao-mb-lg">
+        <h1 class="ui huge header">cnnaio
+            <span class="ui sub header">Vision API tester &amp; code generator</span>
+        </h1>
+        <button class="ui button" data-ao-toggle="theme">Toggle theme</button>
+    </div>
+
+    <div class="cxn-grid">
+
+        <!-- ============ LEFT: request builder ============ -->
+        <div>
+            <div class="ui eyebrow">Connection</div>
+            <div class="ui segment">
+                <div class="ui form">
+                    <div class="field compact">
+                        <label>Base URL</label>
+                        <input type="text" class="ui input" id="baseUrl" placeholder="(same origin)">
+                    </div>
+                    <div class="field compact">
+                        <label>API token (Bearer) — leave empty if server runs <code>no_auth</code></label>
+                        <input type="password" class="ui input" id="token" placeholder="cxn-…">
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui eyebrow">Request</div>
+            <div class="ui segment">
+                <div class="ui form">
+                    <div class="field compact">
+                        <label>Task / endpoint</label>
+                        <select class="ui select" id="task"></select>
+                    </div>
+                    <div class="field compact" data-param="model">
+                        <label>Model</label>
+                        <select class="ui select" id="model"></select>
+                    </div>
+
+                    <div class="field compact" data-param="image">
+                        <label>Image</label>
+                        <input type="file" class="ui input" id="image" accept="image/*">
+                        <img class="cxn-thumb" id="thumb">
+                    </div>
+                    <div class="field compact cxn-hidden" data-param="imageB">
+                        <label>Image B (compare against)</label>
+                        <input type="file" class="ui input" id="imageB" accept="image/*">
+                        <img class="cxn-thumb" id="thumbB">
+                    </div>
+
+                    <div class="field compact cxn-hidden" data-param="score_threshold">
+                        <label>score_threshold</label>
+                        <input type="number" step="0.05" min="0" max="1" class="ui input" id="score_threshold">
+                    </div>
+                    <div class="field compact cxn-hidden" data-param="nms_threshold">
+                        <label>nms_threshold</label>
+                        <input type="number" step="0.05" min="0" max="1" class="ui input" id="nms_threshold">
+                    </div>
+                    <div class="field compact cxn-hidden" data-param="top_k">
+                        <label>top_k</label>
+                        <input type="number" step="1" min="1" class="ui input" id="top_k" value="5">
+                    </div>
+                    <div class="field compact cxn-hidden" data-param="max_results">
+                        <label>max_results</label>
+                        <input type="number" step="1" min="1" class="ui input" id="max_results">
+                    </div>
+                    <div class="field compact cxn-hidden" data-param="threshold">
+                        <label>threshold (same-person cutoff)</label>
+                        <input type="number" step="0.05" min="-1" max="1" class="ui input" id="threshold" value="0.5">
+                    </div>
+                    <label class="ui checkbox row cxn-hidden" data-param="cropped">
+                        <input type="checkbox" id="cropped"> input is already a cropped face
+                    </label>
+                    <div class="field compact cxn-hidden" data-param="tasks">
+                        <label>analyze tasks</label>
+                        <div id="tasksBox"></div>
+                    </div>
+                    <label class="ui checkbox row cxn-hidden" data-param="render">
+                        <input type="checkbox" id="render" checked> render annotated PNG
+                    </label>
+                    <label class="ui checkbox row" data-param="async">
+                        <input type="checkbox" id="async"> async (return a job, then poll)
+                    </label>
+
+                    <button class="ui primary button ao-mt" id="submit" style="width:100%;">Send request</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RIGHT: results + code ============ -->
+        <div>
+            <div class="ui eyebrow">Result</div>
+            <div class="ui segment">
+                <div id="status" class="ui text small dim">Pick a task and an image, then Send.</div>
+                <img id="resultImg" class="ao-mt">
+                <pre id="resultJson" class="cxn-code ao-mt cxn-hidden"></pre>
+            </div>
+
+            <div class="ui eyebrow">Generated code</div>
+            <div class="ui segment">
+                <div class="ui tabular menu">
+                    <div class="item active" data-ao-tab="curl">curl</div>
+                    <div class="item" data-ao-tab="fetch">JavaScript (fetch)</div>
+                    <div class="item" data-ao-tab="jquery">jQuery</div>
+                </div>
+                <div class="ui segment basic" style="padding:10px 0;">
+                    <div class="ui tab active" data-tab="curl"><pre class="cxn-code" id="code-curl"></pre></div>
+                    <div class="ui tab" data-tab="fetch"><pre class="cxn-code" id="code-fetch"></pre></div>
+                    <div class="ui tab" data-tab="jquery"><pre class="cxn-code" id="code-jquery"></pre></div>
+                </div>
+                <div class="ui text small dim">Snippets update live as you change the form. For multipart tasks they
+                    use a file input / <code>-F image=@file</code>; comparison &amp; analyze use base64 JSON.</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "listen": ":8080",
+  "no_auth": true,
+  "max_image_bytes": 10485760,
+  "max_results": 100,
+  "request_timeout_seconds": 30,
+  "rate_limit_per_minute": 0,
+  "cors_origins": [
+    "*"
+  ],
+  "default_models": {
+    "classification": "mobilenet-v2",
+    "detection": "yolo11n",
+    "face_detection": "ultraface-rfb-320"
+  }
+}

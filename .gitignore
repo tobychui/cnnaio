@@ -30,3 +30,15 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+# Build-time deps fetched by ./configure.sh (large; not committed)
+/build/wasi-sdk-*
+/ncnn-*-webassembly/
+/dist
+/output
+/tests
+
+# Example outputs (written to cwd when running ./example/* from the repo root)
+/output.png
+/output.json
+build/classify.o
+build/shim.o
