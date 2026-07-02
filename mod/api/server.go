@@ -11,7 +11,7 @@ import (
 )
 
 // Version is reported by /v1/health.
-const Version = "0.1.0"
+const Version = "1.2.0"
 
 // Server is the HTTP service: a config, a session pool, the token set, and the
 // async job store.
