@@ -54,7 +54,9 @@ module and runs it inside [**wazero**](https://github.com/tetratelabs/wazero), a
   `202` + `GET /v1/jobs/{id}`.
 -  **Developer web UI** — `-dev` serves an interactive API tester that
   uploads an image, shows the JSON + annotated result, and generates
-  curl / fetch / jQuery snippets.
+  curl / fetch / jQuery snippets. The UI is embedded in the binary via
+  `go:embed`, so it works even on a bare release binary with no `./web`
+  folder alongside it.
 -  **Usable as a library** — import `cnnaio/mod/*` and call the models
   directly on a shared `ncnn.Session`. See [`example/`](example/).
 -  **Single self-contained binary** — ideal for homelabs, edge boxes, and
@@ -156,8 +158,8 @@ Then run `bash build/build.sh`.
 | `-j`       | `1`                | Number of ncnn inference sessions = concurrency (each compiles the wasm once). |
 | `-addr`    | (from config)      | Listen address override, e.g. `:9000`.                            |
 | `-config`  | `conf/config.json` | Config file path (created with defaults if missing).              |
-| `-dev`     | off                | Serve the developer web UI (API tester) from `./web` at `/`.      |
-| `-webdir`  | `web`              | Directory served as the web UI in `-dev` mode.                    |
+| `-dev`     | off                | Serve the developer web UI (API tester) at `/`.                   |
+| `-webdir`  | `web`              | Directory served as the web UI in `-dev` mode, if it exists on disk. |
 
 ### Development mode
 
@@ -165,6 +167,11 @@ Then run `bash build/build.sh`.
 model and parameters, upload a local image, and see the annotated PNG + JSON
 response. It also live-generates **curl / fetch / jQuery** snippets for the
 current request. The `/v1/*` API is served alongside it.
+
+The UI is embedded in the binary (`mod/api/web`, packed via `go:embed`), so
+`-dev` works even when only the binary is distributed. If a `./web` folder
+exists on disk (e.g. running from the source tree), it's served instead —
+handy for editing the UI without rebuilding.
 
 ```sh
 go run . -dev          # web UI + API at http://localhost:8080/

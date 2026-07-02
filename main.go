@@ -25,8 +25,8 @@ func main() {
 	jobs := flag.Int("j", 1, "number of ncnn inference instances (session pool size / concurrency)")
 	configPath := flag.String("config", api.DefaultConfigPath, "path to config.json")
 	addr := flag.String("addr", "", "listen address override (else taken from config)")
-	dev := flag.Bool("dev", false, "serve the developer web UI (API tester) from ./web")
-	webDir := flag.String("webdir", "web", "directory served as the web UI in -dev mode")
+	dev := flag.Bool("dev", false, "serve the developer web UI (API tester); falls back to the copy embedded in the binary if -webdir doesn't exist")
+	webDir := flag.String("webdir", "web", "directory served as the web UI in -dev mode, if it exists on disk")
 	flag.Parse()
 
 	// -nt: token generation command. Generate, store, print, exit.
@@ -68,7 +68,11 @@ func main() {
 	var handler http.Handler = srv.Handler()
 	if *dev {
 		handler = api.DevUIHandler(srv.Handler(), *webDir)
-		log.Printf("dev UI enabled: http://localhost%s/  (serving %q)", cfg.Listen, *webDir)
+		src := fmt.Sprintf("%q", *webDir)
+		if info, err := os.Stat(*webDir); err != nil || !info.IsDir() {
+			src = "embedded copy (no " + src + " folder found on disk)"
+		}
+		log.Printf("dev UI enabled: http://localhost%s/  (serving %s)", cfg.Listen, src)
 	}
 	httpSrv := &http.Server{Addr: cfg.Listen, Handler: handler}
 

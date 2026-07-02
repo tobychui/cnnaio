@@ -625,14 +625,20 @@ go run . -dev           # also serve the developer web UI at /
 | `-j`       | `1`                  | Number of ncnn inference sessions (pool size = concurrency). Each compiles the wasm once. |
 | `-addr`    | (from config)        | Listen address override.                                       |
 | `-config`  | `conf/config.json`   | Config file path (created with defaults if missing).           |
-| `-dev`     | off                  | Serve the developer web UI (API tester + code generator) from `./web` at `/`. |
-| `-webdir`  | `web`                | Directory served as the web UI in `-dev` mode.                 |
+| `-dev`     | off                  | Serve the developer web UI (API tester + code generator) at `/`. |
+| `-webdir`  | `web`                | Directory served as the web UI in `-dev` mode, if it exists on disk. |
 
 ### Developer web UI (`-dev`)
 `go run . -dev` serves an interactive tester at `http://localhost:<port>/`: pick a
 task + model + parameters, upload a local image, and see the annotated PNG and JSON
 response. It also live-generates **curl / fetch / jQuery** snippets for the current
 request. The `/v1/*` API is served alongside it.
+
+The UI is embedded in the binary (`mod/api/web`, packed via `go:embed`), so
+`-dev` works out of the box on a bare release binary with no `./web` folder
+shipped alongside it. If `-webdir` points at a real directory on disk (the
+default `./web`, e.g. running from the source tree), that's served instead —
+useful for editing the UI without rebuilding.
 
 ### `conf/config.json`
 ```json
